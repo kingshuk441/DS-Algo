@@ -1,6 +1,22 @@
 package basics;
 
 public class Basics {
+    public static boolean isPrime(int num) {
+        boolean isPrime = true;
+        for (int i = 2; i * i <= num; i++) {
+            if (num % i == 0) {
+                isPrime = false;
+                break;
+            }
+        }
+
+        if (isPrime) {
+            System.out.println("This is a prime number.");
+        } else {
+            System.out.println("This is not a prime number.");
+        }
+        return isPrime;
+    }
 
     public static int fibonacci(int n) {
         if (n <= 1) return n;
