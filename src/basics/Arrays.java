@@ -108,11 +108,68 @@ public class Arrays {
         for (int i = 0; i < n; i++) {
             for (int j = i; j < n; j++) {
                 for (int k = i; k <= j; k++) {
-                    System.out.print(arr[k]+" ");
+                    System.out.print(arr[k] + " ");
                 }
                 System.out.println();
             }
             System.out.println("----");
+        }
+    }
+
+    // same for % by k
+    public static int findCountOfSubArraysWithSumK(int arr[], int k) {
+        int n = arr.length, count = 0;
+        for (int i = 0; i < n; i++) {
+            int csum = 0;
+            for (int j = i; j < n; j++) {
+                csum += arr[j];
+                if (csum == k) count++;
+            }
+        }
+        return count;
+    }
+
+    public static int kadanesAlgoFormMaxSum(int arr[]) {
+        int n = arr.length, maxSum = Integer.MIN_VALUE, currSum = 0;
+        for (int i = 0; i < n; i++) {
+            currSum += arr[i];
+            maxSum = Math.max(currSum, maxSum);
+            if (currSum < 0) currSum = 0;
+        }
+        return maxSum;
+    }
+
+    public static int[] kadanesAlgoFormMaxSumPrint(int arr[]) {
+        int n = arr.length, maxSum = Integer.MIN_VALUE, currSum = 0, maxSi = 0, maxEi = 0, si = 0;
+        for (int i = 0; i < n; i++) {
+            currSum += arr[i];
+            if (currSum > maxSum) {
+                maxSum = currSum;
+                maxSi = si;
+                maxEi = i;
+            }
+
+            if (currSum < 0) {
+                si = i + 1;
+                currSum = 0;
+            }
+        }
+        System.out.println(maxSum);
+        return new int[]{maxSi, maxEi};
+    }
+
+    public static void printAllSubSets(int arr[]) {
+        int n = arr.length;
+        for (int i = 0; i < Math.pow(2, n); i++) {
+            int currNum = i;
+            String subStr = "";
+            for (int j = n - 1; j >= 0; j--) {
+                int r = currNum % 2;
+                if (r == 0) subStr = "_ " + subStr;
+                else subStr = arr[j] + " " + subStr;
+                currNum = currNum / 2;
+            }
+            System.out.println(subStr);
         }
     }
 
@@ -122,10 +179,17 @@ public class Arrays {
 //        int[] differenceOfArrays = differenceOfArrays(new int[]{1, 0, 0}, new int[]{1});
 //        int arr[] = new int[]{10, 9, 4, 11, 2, 7, 5};
 //        rotate(arr, 4);
-        int arr[] = new int[]{3, 0, 4, 1, 5, 2};
-         subArray(arr);
-        for (int i = 0; i < arr.length; i++) {
-            System.out.print(arr[i] + " ");
-        }
+//        int arr[] = new int[]{3, 0, 4, 1, 5, 2};
+//        int arr[] = new int[]{3, 4, -2, 1, -4, 6, 1, -13, 2, 7};
+//        subArray(arr);
+//        for (int i = 0; i < arr.length; i++) {
+//            System.out.print(arr[i] + " ");
+//        }
+//        int countOfSubArraysWithSumK = findCountOfSubArraysWithSumK(arr, 4);
+//        int maxSum = kadanesAlgoFormMaxSum(arr);
+//        int maxSum[] = kadanesAlgoFormMaxSumPrint(arr);
+//        for (int i = maxSum[0]; i <= maxSum[1]; i++) System.out.print(arr[i] + " ");
+        int arr[] = {7, 4, 5};
+        printAllSubSets(arr);
     }
 }
