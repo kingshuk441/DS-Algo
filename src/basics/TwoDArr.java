@@ -168,6 +168,16 @@ public class TwoDArr {
         return -1;
     }
 
+    public static void diagonalPrint(int arr[][]) {
+        int n = arr.length, m = arr[0].length;
+        for (int dia = 0; dia < m; dia++) {
+            for (int i = 0, j = dia; i < n && j < m; i++, j++) {
+                System.out.print(arr[i][j] + ",");
+            }
+            System.out.println();
+        }
+    }
+
 
     public static void main(String[] args) {
 //        int[][] A = {{9, 4, 5}, {6, 8, -1}, {11, 5, 3}, {7, 14, 5}};
