@@ -15,6 +15,32 @@ public class Recursion {
 
     }
 
+    public static int pow(int x, int y) {
+        if (y == 0) return 1;
+        int sAns = pow(x, y / 2);
+        int ans = sAns * sAns;
+        if (y % 2 != 0) ans *= x;
+        return ans;
+    }
+
+    public static void printPattern(int n) {
+        if (n == 0) return;
+        System.out.print(n);
+        printPattern(n - 1);
+        System.out.print(n);
+        printPattern(n - 1);
+        System.out.print(n);
+
+    }
+
+    public static void TOH(int n, char from, char to, char via) {
+        if (n == 0) return;
+        TOH(n - 1, from, via, to);
+        System.out.println("Moving disc " + n + " from " + from + " -> " + to);
+        TOH(n - 1, via, to, from);
+
+    }
+
     public static ArrayList<String> printSubs(String str) {
         if (str.length() == 0) {
             ArrayList<String> b = new ArrayList<>();
@@ -71,8 +97,9 @@ public class Recursion {
 
     public static void main(String[] args) {
 //        pdi(5);
+//         printPattern(2);
 //        ArrayList<String> abc = printSubs("ABC");
-        ArrayList<String> abc = getStairPaths(4);
-        System.out.println(abc);
+//        ArrayList<String> abc = getStairPaths(4);
+//        System.out.println(abc);
     }
 }
