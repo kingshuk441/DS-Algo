@@ -95,11 +95,107 @@ public class Recursion {
         return ans;
     }
 
+    public static ArrayList<String> allMazePaths(int sr, int sc, int er, int ec) {
+        if (sr > er || sc > ec) return new ArrayList<>();
+        if (sr == er && sc == ec) {
+            ArrayList<String> base = new ArrayList<>();
+            base.add("");
+            return base;
+        }
+        ArrayList<String> ans = new ArrayList<>();
+        ArrayList<String> horizontal = allMazePaths(sr, sc + 1, er, ec);
+        for (String s : horizontal) ans.add("H" + s);
+        ArrayList<String> vertical = allMazePaths(sr + 1, sc, er, ec);
+        for (String s : vertical) ans.add("V" + s);
+
+        return ans;
+    }
+
+    public static ArrayList<String> allMazePathsJumps(int sr, int sc, int er, int ec) {
+//        if (sr > er || sc > ec) return new ArrayList<>();
+        if (sr == er && sc == ec) {
+            ArrayList<String> base = new ArrayList<>();
+            base.add("");
+            return base;
+        }
+        ArrayList<String> ans = new ArrayList<>();
+        for (int jumps = 1; jumps <= ec; jumps++) {
+            if (jumps + sc <= ec) {
+                ArrayList<String> horizontal = allMazePathsJumps(sr, sc + jumps, er, ec);
+                for (String s : horizontal) {
+                    ans.add("H" + jumps + s);
+                }
+            }
+        }
+        for (int jumps = 1; jumps <= er; jumps++) {
+            if (jumps + sr <= er) {
+                ArrayList<String> vertical = allMazePathsJumps(sr + jumps, sc, er, ec);
+                for (String s : vertical) {
+                    ans.add("V" + jumps + s);
+                }
+            }
+        }
+        for (int jumps = 1; jumps <= er && jumps <= ec; jumps++) {
+            if (jumps + sr <= er & jumps + sc <= ec) {
+                ArrayList<String> diag = allMazePathsJumps(sr + jumps, sc + jumps, er, ec);
+                for (String s : diag) {
+                    ans.add("D" + jumps + s);
+                }
+            }
+        }
+
+        return ans;
+    }
+
+    // ON THE WAY UP
+
+    public static void printSubs2(String str, String asf) {
+        if (str.length() == 0) {
+            System.out.println(asf);
+            return;
+        }
+        char ch = str.charAt(0);
+        printSubs2(str.substring(1), asf + ch);
+        printSubs2(str.substring(1), asf);
+    }
+
+    public static void printKPC2(String str, String asf) {
+        if (str.length() == 0) {
+            System.out.println(asf);
+            return;
+        }
+        char ch = str.charAt(0);
+        int idx = ch - '0';
+        String letters = lettersArray[idx];
+        for (int i = 0; i < letters.length(); i++) {
+            char letter = letters.charAt(i);
+            printKPC2(str.substring(1), asf + letter);
+        }
+    }
+
+    public static void printStairPaths2(int n, String asf) {
+        if (n <= 0) {
+            if (n == 0)
+                System.out.println(asf);
+
+            return;
+        }
+        printStairPaths2(n - 1, asf + "1");
+        printStairPaths2(n - 2, asf + "2");
+        printStairPaths2(n - 3, asf + "3");
+
+    }
+
     public static void main(String[] args) {
 //        pdi(5);
 //         printPattern(2);
 //        ArrayList<String> abc = printSubs("ABC");
 //        ArrayList<String> abc = getStairPaths(4);
 //        System.out.println(abc);
+//        ArrayList<String> strings = allMazePaths(0, 0, 2, 2);
+//        ArrayList<String> strings = allMazePathsJumps(0, 0, 2, 2);
+//        System.out.println(strings);
+//        printSubs2("abc", "");
+        printStairPaths2(4, "");
     }
 }
