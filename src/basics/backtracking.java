@@ -7,8 +7,15 @@ public class backtracking {
 //        floodFill(arr, 0, 0, arr.length - 1, arr[0].length - 1, "");
 //        int arr[] = {2, 5, 3, 4, 6, 8, -4};
 //        targetSumSubset(arr, 8, 0, "");
-        int n = 4;
-        nQueens(n, 0, new boolean[n][n], "");
+//        int n = 4;
+//        nQueens(n, 0, new boolean[n][n], "");
+//        knightsTour(3, 4);
+        int arr[] = {2, 3, 5, 7};
+        int tar = 10;
+//        coinChangePermSingle(arr, tar);
+//        coinChangePermMultiple(arr,tar);
+//        coinChangeComSingle(arr, tar);
+        coinChangeComMultiple(arr, tar);
     }
 
     private static void floodFill(int[][] arr, int sr, int sc, int er, int ec, String psf) {
@@ -66,5 +73,101 @@ public class backtracking {
 
         targetSumSubset(arr, tar - arr[idx], idx + 1, psf + arr[idx] + ",");
         targetSumSubset(arr, tar, idx + 1, psf);
+    }
+
+    public static void knightsTour(int sr, int sc) {
+        int board[][] = new int[8][8];
+        int dir[][] = {{-2, -1}, {-2, 1}, {-1, 2}, {1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}};
+        knightsTourRec(sr, sc, dir, board, 0);
+    }
+
+    private static void knightsTourRec(int sr, int sc, int[][] dir, int[][] board, int count) {
+        if (count == board.length * board[0].length) {
+            for (int i = 0; i < board.length; i++) {
+                for (int j = 0; j < board[0].length; j++) {
+                    System.out.print(board[i][j] + ",");
+                }
+                System.out.println();
+            }
+            return;
+        }
+        board[sr][sc] = count;
+        for (int d[] : dir) {
+            int r = sr + d[0];
+            int c = sc + d[1];
+            if (r >= 0 && r < board.length && c >= 0 && c < board[0].length && board[r][c] == 0) {
+                knightsTourRec(r, c, dir, board, count + 1);
+            }
+        }
+        board[sr][sc] = 0;
+    }
+
+    public static void coinChangePermSingle(int[] arr, int tar) {
+        coinChangePermSingle(arr, tar, "", new boolean[arr.length]);
+    }
+
+    public static void coinChangePermMultiple(int[] arr, int tar) {
+        coinChangePermMultiple(arr, tar, "");
+    }
+
+    public static void coinChangeComSingle(int[] arr, int tar) {
+        coinChangeComSingle(arr, tar, 0, "");
+    }
+
+    public static void coinChangeComMultiple(int[] arr, int tar) {
+        coinChangeComMultiple(arr, tar, 0, "");
+    }
+
+    private static void coinChangeComMultiple(int[] arr, int tar, int idx, String psf) {
+        int n = arr.length;
+        if (tar == 0) {
+            System.out.println(psf);
+            return;
+        }
+        for (int i = idx; i < n; i++) {
+            if (tar - arr[i] >= 0) coinChangeComMultiple(arr, tar - arr[i], i, psf + arr[i]);
+        }
+    }
+
+    private static void coinChangeComSingle(int[] arr, int tar, int idx, String psf) {
+        int n = arr.length;
+        if (tar == 0) {
+            System.out.println(psf);
+            return;
+        }
+        for (int i = idx; i < n; i++) {
+            if (tar - arr[i] >= 0) coinChangeComSingle(arr, tar - arr[i], i + 1, psf + arr[i]);
+        }
+    }
+
+    private static void coinChangePermMultiple(int[] arr, int tar, String psf) {
+        int n = arr.length;
+        if (tar == 0) {
+            System.out.println(psf);
+            return;
+        }
+        for (int i = 0; i < n; i++) {
+            if (tar - arr[i] >= 0) {
+
+                coinChangePermMultiple(arr, tar - arr[i], psf + arr[i] + ",");
+
+            }
+        }
+    }
+
+    private static void coinChangePermSingle(int[] arr, int tar, String psf, boolean[] vis) {
+        int n = arr.length;
+        if (tar == 0) {
+            System.out.println(psf);
+            return;
+        }
+        for (int i = 0; i < n; i++) {
+            if (!vis[i] && tar - arr[i] >= 0) {
+                vis[i] = true;
+                coinChangePermSingle(arr, tar - arr[i], psf + arr[i] + ",", vis);
+                vis[i] = false;
+            }
+        }
+
     }
 }
