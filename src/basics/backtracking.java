@@ -1,5 +1,8 @@
 package basics;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class backtracking {
 
     public static void main(String[] args) {
@@ -169,5 +172,140 @@ public class backtracking {
             }
         }
 
+    }
+
+    public static int friendsPairing(int n) {
+        if (n <= 1) return 1;
+        int singlePair = friendsPairing(n - 1);
+        int doublePair = friendsPairing(n - 2) * (n - 1);
+        return singlePair + doublePair;
+    }
+
+    public static int joshephus_zero(int n, int k) {
+        if (n == 1) return 0;
+        int smallAns = joshephus_zero(n - 1, k);
+        return (smallAns + k) % n;
+    }
+
+    public static int joshephusProblem(int n, int k) {
+        return joshephus_zero(n, k) + 1;
+    }
+
+    public void solveSudoku(char[][] board) {
+        List<int[]> empty = new ArrayList<>();
+        int n = board.length, m = board[0].length;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (board[i][j] == '.') empty.add(new int[]{i, j});
+            }
+        }
+        solveSudoku(empty, 0, board);
+    }
+
+    private boolean solveSudoku(List<int[]> empty, int idx, char[][] board) {
+        if (idx == empty.size()) return true;
+        int r = empty.get(idx)[0];
+        int c = empty.get(idx)[1];
+        for (char ch = '1'; ch <= '9'; ch++) {
+            if (canPlace(board, ch, r, c)) {
+                board[r][c] = ch;
+                if (solveSudoku(empty, idx + 1, board)) return true;
+                board[r][c] = '.';
+            }
+        }
+        return false;
+    }
+
+    private boolean canPlace(char[][] board, char ch, int r, int c) {
+        for (int i = 0; i < 9; i++) {
+            if (board[i][c] == ch) return false;
+        }
+        for (int j = 0; j < 9; j++) {
+            if (board[r][j] == ch) return false;
+        }
+        int startR = (r / 3) * 3;
+        int startC = (c / 3) * 3;
+        for (int i = startR; i < startR + 3; i++) {
+            for (int j = startC; j < startC + 3; j++) {
+                if (board[i][j] == ch) return false;
+            }
+        }
+        return true;
+    }
+
+    public int totalNQueens2(int n) {
+        boolean rowsVis[] = new boolean[n];
+        boolean colsVis[] = new boolean[n];
+        boolean diaVis[] = new boolean[2 * n - 1];
+        boolean aDiagVis[] = new boolean[2 * n - 1];
+        return solveNQueen(n, 0, rowsVis, colsVis, diaVis, aDiagVis);
+    }
+
+    private int solveNQueen(int n, int idx, boolean[] rowsVis, boolean[] colsVis, boolean[] diaVis, boolean[] aDiagVis) {
+        if (idx == n) {
+            return 1;
+        }
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            if (isPossibleToPlaceQueen(n, idx, i, rowsVis, colsVis, diaVis, aDiagVis)) {
+                setValues(n, idx, i, rowsVis, colsVis, diaVis, aDiagVis, true);
+                count += solveNQueen(n, idx + 1, rowsVis, colsVis, diaVis, aDiagVis);
+                setValues(n, idx, i, rowsVis, colsVis, diaVis, aDiagVis, false);
+
+            }
+        }
+        return count;
+    }
+
+    private void setValues(int n, int r, int c, boolean[] rowsVis, boolean[] colsVis, boolean[] diaVis, boolean[] aDiagVis, boolean value) {
+        rowsVis[r] = value;
+        colsVis[c] = value;
+        diaVis[c - r + n - 1] = value;
+        aDiagVis[r + c] = value;
+    }
+
+    private boolean isPossibleToPlaceQueen(int n, int r, int c, boolean[] rowsVis, boolean[] colsVis, boolean[] diaVis, boolean[] aDiagVis) {
+        return !rowsVis[r] && !colsVis[c] && !diaVis[c - r + n - 1] && !aDiagVis[c + r];
+    }
+
+    // NQueen BIT
+    public int totalNQueens(int n) {
+        int cols = 0, diag = 0, aDiag = 0;
+        return solveNQueen(n, 0, cols, diag, aDiag);
+    }
+
+    private int solveNQueen(int n, int idx, int cols, int diag, int aDiag) {
+        if (idx == n) {
+            return 1;
+        }
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            if (isPossibleToPlaceQueen(n, idx, i, cols, diag, aDiag)) {
+                int mask = (1 << i);
+                cols = (cols | mask);
+                mask = (1 << (i - idx + n - 1));
+                diag = (diag | mask);
+                mask = (1 << (idx + i));
+                aDiag = (aDiag | mask);
+                count += solveNQueen(n, idx + 1, cols, diag, aDiag);
+                 mask = ~(1 << i);
+                cols = (cols & mask);
+                mask = ~(1 << (i - idx + n - 1));
+                diag = (diag & mask);
+                mask = ~(1 << (idx + i));
+                aDiag = (aDiag & mask);
+            }
+        }
+        return count;
+    }
+
+    private boolean isPossibleToPlaceQueen(int n, int r, int c, int cols, int diag, int aDiag) {
+        int mask = (1 << c);
+        if ((mask & cols) > 0) return false;
+        mask = (1 << (c - r + n - 1));
+        if ((mask & diag) > 0) return false;
+        mask = (1 << (r + c));
+        if ((mask & aDiag) > 0) return false;
+        return true;
     }
 }
