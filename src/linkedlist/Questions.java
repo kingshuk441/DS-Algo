@@ -118,4 +118,130 @@ public class Questions {
         oddPrev.next = evenHead.next;
         return odd;
     }
+
+    ListNode th, tt, oh, ot;
+
+    private void addFirst(ListNode head) {
+        if (th == null) {
+            th = tt = head;
+        } else {
+            head.next = th;
+            th = head;
+        }
+    }
+
+    private int sizeLL(ListNode head) {
+        int len = 0;
+        while (head != null) {
+            len++;
+            head = head.next;
+        }
+        return len;
+    }
+
+    public ListNode reverseKGroup(ListNode head, int k) {
+        int size = sizeLL(head);
+        while (size >= k) {
+            int tempK = k;
+            while (tempK-- > 0 && head != null) {
+                ListNode next = head.next;
+                head.next = null;
+                addFirst(head);
+                head = next;
+            }
+            if (oh == null) {
+                oh = th;
+                ot = tt;
+            } else {
+                ot.next = th;
+                ot = tt;
+            }
+            tt = th = null;
+            size -= k;
+        }
+        ot.next = head;
+        return oh;
+    }
+
+    public Node copyRandomList(Node head) {
+
+        //add nodes in b/w
+        Node temp = head;
+        while (temp != null) {
+            Node next = temp.next;
+            Node n = new Node(temp.data);
+            temp.next = n;
+            n.next = next;
+            temp = next;
+        }
+        // point random pointer
+        temp = head;
+        while (temp != null) {
+            Node next = temp.next.next;
+            temp.next.random = temp.random == null ? null : temp.random.next;
+            temp = next;
+        }
+
+        //remove added nodes
+        Node dummy = new Node(-1);
+        Node prev = dummy;
+        while (head != null) {
+            Node nextNode = head.next.next;
+            prev.next = head.next;
+            prev = head.next;
+            head.next = nextNode;
+            head = nextNode;
+        }
+        return dummy.next;
+
+    }
+
+    public ListNode deleteDuplicates(ListNode head) {
+        if (head == null || head.next == null) return head;
+        ListNode prev = head, curr = head.next;
+        while (curr != null) {
+            if (prev.val != curr.val) {
+                prev = curr;
+                curr = curr.next;
+            } else {
+                ListNode currNext = curr.next;
+                prev.next = curr.next;
+                curr = currNext;
+            }
+        }
+        prev.next = null;
+        return head;
+    }
+
+
+    public ListNode deleteDuplicates2(ListNode head) {
+        ListNode dummy = new ListNode(-1);
+        ListNode prev = dummy;
+        prev.next = head;
+        ListNode curr = head;
+        while (curr != null && curr.next != null) {
+            if (prev.next.val == curr.next.val) {
+                while (curr != null && curr.val == prev.next.val) {
+                    curr = curr.next;
+                }
+                prev.next = curr;
+            } else {
+                prev.next = curr;
+                prev = curr;
+                curr = curr.next;
+            }
+        }
+        return dummy.next;
+    }
+
+    public boolean isCycle(ListNode head) {
+        ListNode fast = head;
+        ListNode slow = head;
+        while (fast != null && fast.next != null) {
+            fast = fast.next.next;
+            slow = slow.next;
+            if (fast == slow) return true;
+        }
+        return false;
+    }
 }
