@@ -82,6 +82,71 @@ public class Questions {
         return al;
     }
 
+    public int[] leftSmaller(int[] arr) {
+        Stack<Integer> st = new Stack<>();
+        int ans[] = new int[arr.length];
+        Arrays.fill(ans, -1);
+        for (int i = 0; i < arr.length; i++) {
+            int ele = arr[i];
+            while (st.size() > 0 && st.peek() >= ele) {
+                st.pop();
+            }
+            if (st.size() != 0) ans[i] = st.peek();
+            st.push(ele);
+        }
+        return ans;
+    }
+
+    public ArrayList<Integer> calculateSpan(int[] arr) {
+        int n = arr.length;
+        Stack<Integer> st = new Stack<>();
+        ArrayList<Integer> al = new ArrayList<>();
+        st.push(-1);
+        for (int i = 0; i < n; i++) {
+            int ele = arr[i];
+            while (st.peek() != -1 && arr[st.peek()] <= arr[i]) {
+                st.pop();
+            }
+            al.add(i - st.peek());
+            st.push(i);
+        }
+        return al;
+    }
+
+    public static int getMaxArea(int arr[]) {
+        int n = arr.length;
+        int nsl[] = new int[n];
+        int nsr[] = new int[n];
+
+        Stack<Integer> st = new Stack<>();
+        st.push(-1);
+        for (int i = 0; i < n; i++) {
+            int ele = arr[i];
+            while (st.size() != 1 && arr[st.peek()] >= ele) {
+                st.pop();
+            }
+            nsl[i] = st.peek();
+            st.push(i);
+        }
+        st = new Stack<>();
+        st.push(n);
+        for (int i = n - 1; i >= 0; i--) {
+            int ele = arr[i];
+            while (st.size() != 1 && arr[st.peek()] >= ele) {
+                st.pop();
+            }
+            nsr[i] = st.peek();
+            st.push(i);
+        }
+
+        int max = 0;
+        for (int i = 0; i < n; i++) {
+            int area = arr[i] * (nsr[i] - nsl[i] - 1);
+            max = Math.max(area, max);
+        }
+        return max;
+    }
+
     public static void main(String[] args) {
         System.out.println(isDuplicate("((a+b)+((c+d)))"));
     }
