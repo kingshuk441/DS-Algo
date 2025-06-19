@@ -527,7 +527,7 @@ public class Questions {
         }
     }
 
-    public int[] maxSlidingWindow(int[] nums, int k) {
+    public int[] maxSlidingWindow2(int[] nums, int k) {
         LinkedList<Integer> que = new LinkedList<>();
         int n = nums.length;
         int j = 0;
