@@ -157,7 +157,7 @@ class Construction {
         Node nextNode = toRemove.next;
 
         prevNode.next = null; // breaking the connection with the node to be removed, removing connection from rest of LL
-        prevNode.next = nextNode; // connecting previous node with next of to be removed Node, thus connecting to rest of LL
+        prevNode.next = nextNode; // connecting previous node with next of to be removed TreeNode, thus connecting to rest of LL
         this.size--;
     }
 
@@ -226,7 +226,7 @@ class Main {
         // }
 
         // ll.removeFirst();
-        // Node n = ll.getNodeAt(4);
+        // TreeNode n = ll.getNodeAt(4);
         // System.out.println(n.data);
         // System.out.println(n.next);
 

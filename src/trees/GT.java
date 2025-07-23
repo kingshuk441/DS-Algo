@@ -7,6 +7,9 @@ import java.util.Stack;
 class Node {
     int data;
     List<Node> children;
+    Node left;
+    Node right;
+    Node next;
 
     Node(int data) {
         this.data = data;
