@@ -1,8 +1,7 @@
 package graphs;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.nio.channels.Pipe;
+import java.util.*;
 
 public class DSU {
     int[] par;
@@ -208,4 +207,344 @@ public class DSU {
         return res.stream().mapToInt(Integer::intValue).toArray();
     }
 
+    public int numSimilarGroups(String[] strs) {
+        int n = strs.length;
+        init(n);
+        int tc = n;
+        for (int i = 0; i < n; i++) {
+            int p1 = findPar(i);
+            for (int j = i + 1; j < n; j++) {
+                if (isSimilar(strs[i], strs[j])) {
+                    int p2 = findPar(j);
+                    if (p1 != p2) {
+                        tc--;
+                        par[p2] = p1;
+                    }
+                }
+            }
+        }
+        return tc;
+
+    }
+
+    private boolean isSimilar(String str, String str1) {
+        int count = 0;
+        for (int i = 0; i < str.length(); i++) {
+            if (str.charAt(i) != str1.charAt(i)) {
+                count++;
+            }
+        }
+        return count <= 2;
+    }
+
+    public boolean equationsPossible(String[] equations) {
+        init(26);
+        for (String s : equations) {
+            if (s.charAt(1) == '=') {
+                int u = s.charAt(0) - 'a';
+                int v = s.charAt(3) - 'a';
+                int p1 = findPar(u);
+                int p2 = findPar(v);
+                if (p1 != p2) {
+                    merge(p1, p2);
+                }
+            }
+        }
+        for (String s : equations) {
+            if (s.charAt(1) == '!') {
+                int u = s.charAt(0) - 'a';
+                int v = s.charAt(3) - 'a';
+                int p1 = findPar(u);
+                int p2 = findPar(v);
+                if (p1 == p2) return false;
+            }
+        }
+        return true;
+
+    }
+
+    public int ladderLength(String beginWord, String endWord, List<String> wordList) {
+        LinkedList<String> que = new LinkedList<>();
+        Set<String> set = new HashSet<>();
+        que.add(beginWord);
+        for (String s : wordList) {
+            set.add(s);
+        }
+        set.remove(beginWord);
+
+        int lvl = 1;
+        while (que.size() > 0) {
+            int size = que.size();
+            while (size-- > 0) {
+                String word = que.remove();
+                List<String> toRemove = new ArrayList<>();
+
+                for (String s : set) {
+                    if (isPossible(s, word)) {
+                        if (s.equals(endWord)) return lvl + 1;
+                        que.add(s);
+                        toRemove.add(s);
+                    }
+                }
+                toRemove.forEach(set::remove);
+            }
+            lvl++;
+        }
+        return 0;
+    }
+
+    private boolean isPossible(String s, String word) {
+        if (s.length() != word.length()) return false;
+        int count = 0;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) != word.charAt(i)) count++;
+        }
+        return count == 1;
+    }
+
+    private void addEdge(Map<String, Set<String>> graph, String u, List<String> wordList) {
+        for (String s : wordList) {
+            if (isPossible(s, u)) {
+                graph.get(u).add(s);
+                graph.get(s).add(u);
+            }
+        }
+    }
+
+    public int ladderLength2(String beginWord, String endWord, List<String> wordList) {
+
+        Map<String, Set<String>> graph = new HashMap<>();
+        graph.put(beginWord, new HashSet<>());
+
+        for (int i = 0; i < wordList.size(); i++) {
+            graph.put(wordList.get(i), new HashSet<>());
+        }
+        addEdge(graph, beginWord, wordList);
+        for (int i = 0; i < wordList.size(); i++) {
+            addEdge(graph, wordList.get(i), wordList);
+        }
+
+        Set<String> vis = new HashSet<>();
+        vis.add(beginWord);
+        LinkedList<String> que = new LinkedList<>();
+        que.add(beginWord);
+        int lvl = 1;
+        while (que.size() > 0) {
+            int size = que.size();
+            while (size-- > 0) {
+                String word = que.remove();
+                for (String nbr : graph.get(word)) {
+                    if (!vis.contains(nbr)) {
+                        que.add(nbr);
+                        vis.add(nbr);
+                        if (nbr.equals(endWord)) return lvl + 1;
+                    }
+                }
+            }
+            lvl++;
+        }
+        return 0;
+    }
+
+    public class Pair {
+        String word;
+        String psf;
+
+        Pair(String word, String psf) {
+            this.word = word;
+            this.psf = psf;
+        }
+    }
+
+    public List<List<String>> findLadders(String beginWord, String endWord, List<String> wordList) {
+        Map<String, Set<String>> graph = new HashMap<>();
+        graph.put(beginWord, new HashSet<>());
+
+        for (int i = 0; i < wordList.size(); i++) {
+            graph.put(wordList.get(i), new HashSet<>());
+        }
+        addEdge(graph, beginWord, wordList);
+        for (int i = 0; i < wordList.size(); i++) {
+            addEdge(graph, wordList.get(i), wordList);
+        }
+
+        Set<String> vis = new HashSet<>();
+        vis.add(beginWord);
+        LinkedList<Pair> que = new LinkedList<>();
+        que.add(new Pair(beginWord, beginWord + ","));
+        int lvl = 1;
+        while (que.size() > 0) {
+            int size = que.size();
+            while (size-- > 0) {
+                Pair pair = que.remove();
+                String word = pair.word;
+                String psf = pair.psf;
+                for (String nbr : graph.get(word)) {
+                    if (!vis.contains(nbr)) {
+                        que.add(new Pair(nbr, psf + nbr + ","));
+                        vis.add(nbr);
+                        if (nbr.equals(endWord)) {
+                            System.out.println(psf);
+                        }
+                    }
+                }
+            }
+            lvl++;
+        }
+        return null;
+    }
+
+    class Edge {
+        int u;
+        int v;
+        int w;
+
+        public Edge(int u, int v, int w) {
+            this.u = u;
+            this.v = v;
+            this.w = w;
+        }
+
+        @Override
+        public String toString() {
+            return "Edge{" + "u=" + u + ", v=" + v + ", w=" + w + '}';
+        }
+    }
+
+    private void addEdge(List<Edge>[] graph, int u, int v, int w) {
+        graph[u].add(new Edge(u, v, w));
+        graph[v].add(new Edge(v, u, w));
+
+    }
+
+    public void kruskalAlgo(int[][] edges, int n) {
+        init(n);
+        Arrays.sort(edges, Comparator.comparingInt(a -> a[2]));
+        List<Edge> graph[] = new List[n];
+        for (int i = 0; i < n; i++) {
+            graph[i] = new ArrayList<>();
+        }
+
+        for (int[] edge : edges) {
+            int u = edge[0];
+            int v = edge[1];
+            int w = edge[2];
+            int p1 = findPar(u);
+            int p2 = findPar(v);
+            if (p1 != p2) {
+                addEdge(graph, u, v, w);
+                merge(p1, p2);
+            }
+        }
+    }
+
+    public int minCostConnectPoints(int[][] points) {
+        int n = points.length;
+        int totalEdgeCount = (n * (n + 1)) / 2;
+        int edges[][] = new int[totalEdgeCount][3];
+        int idx = 0;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                edges[idx][0] = i;
+                edges[idx][1] = j;
+                edges[idx][2] = getDistance(points[i], points[j]);
+                idx++;
+            }
+        }
+        init(n);
+        int total = 0;
+        Arrays.sort(edges, Comparator.comparingInt(a -> a[2]));
+        for (int[] edge : edges) {
+            int u = edge[0];
+            int v = edge[1];
+            int w = edge[2];
+            int p1 = findPar(u);
+            int p2 = findPar(v);
+            if (p1 != p2) {
+                total += w;
+                merge(p1, p2);
+            }
+        }
+        return total;
+
+    }
+
+    private int getDistance(int[] pt1, int[] pt2) {
+        int u1 = pt1[0], v1 = pt1[1], u2 = pt2[0], v2 = pt2[1];
+        return Math.abs(u1 - u2) + Math.abs(v1 - v2);
+    }
+
+    public int supplyWater(int n, int k, int[] wells, int[][] pipes) {
+        int edgeCount = pipes.length + n;
+        int edges[][] = new int[edgeCount][3];
+        int idx = 0;
+        for (int p[] : pipes) {
+            edges[idx++] = p;
+        }
+        for (int i = 0; i < n; i++) {
+            edges[idx++] = new int[]{0, i + 1, wells[i]};
+        }
+        Arrays.sort(edges, (a, b) -> a[2] - b[2]);
+        init(n + 1);
+        int cost = 0;
+        for (int[] edge : edges) {
+            int u = edge[0];
+            int v = edge[1];
+            int w = edge[2];
+            int p1 = findPar(u);
+            int p2 = findPar(v);
+            if (p1 != p2) {
+                merge(p1, p2);
+                cost += w;
+            }
+
+        }
+        return cost;
+
+    }
+
+    public String smallestStringWithSwaps(String s, List<List<Integer>> pairs) {
+        int n = s.length();
+        init(n);
+        Map<Integer, String> parentStringMap = new HashMap<>();
+        for (int i = 0; i < pairs.size(); i++) {
+            int u = pairs.get(i).get(0);
+            int v = pairs.get(i).get(1);
+            int p1 = findPar(u);
+            int p2 = findPar(v);
+            if (p1 != p2) {
+                par[p1] = p2;
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            int p1 = findPar(i);
+
+            if (parentStringMap.containsKey(p1)) {
+                parentStringMap.put(p1, parentStringMap.get(p1) + s.charAt(i));
+            } else {
+                parentStringMap.put(p1, s.charAt(i) + "");
+            }
+        }
+        for (Map.Entry<Integer, String> entry : parentStringMap.entrySet()) {
+            String value = entry.getValue();
+            char[] chars = value.toCharArray();
+            Arrays.sort(chars);
+            String sorted = new String(chars);
+            entry.setValue(sorted);
+        }
+        int[] pos = new int[n];
+        StringBuilder ans = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            int p1 = findPar(i);
+            int idx = pos[p1];
+            char value = parentStringMap.get(p1).charAt(idx);
+            pos[p1]++;
+            ans.append(value);
+
+        }
+
+        return ans.toString();
+
+    }
 }

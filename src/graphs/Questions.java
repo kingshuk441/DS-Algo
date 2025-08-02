@@ -1,5 +1,6 @@
 package graphs;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Questions {
@@ -584,8 +585,7 @@ public class Questions {
         Stack<Integer> st = new Stack<>();
         boolean[] vis = new boolean[n];
         for (int i = 0; i < n; i++) {
-            if (!vis[i])
-                dfs_kosaraju_stackFill(adj, i, st, vis);
+            if (!vis[i]) dfs_kosaraju_stackFill(adj, i, st, vis);
         }
         //reverse graph
         ArrayList<ArrayList<Integer>> reverseGraph = new ArrayList<>();
@@ -622,9 +622,187 @@ public class Questions {
         vis[src] = true;
 
         for (int e : adj.get(src)) {
-            if (!vis[e])
-                dfs_kosaraju_stackFill(adj, e, st, vis);
+            if (!vis[e]) dfs_kosaraju_stackFill(adj, e, st, vis);
         }
         st.push(src);
+    }
+
+    public int networkDelayTime(int[][] times, int n, int src) {
+
+        List<int[]> graph[] = new ArrayList[n];
+        for (int i = 0; i < n; i++) {
+            graph[i] = new ArrayList<>();
+        }
+        for (int[] time : times) {
+            int u = time[0] - 1, v = time[1] - 1, w = time[2];
+            graph[u].add(new int[]{v, w});
+        }
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] - b[1]);
+        int dis[] = new int[n];
+        Arrays.fill(dis, (int) 1e8);
+
+        dis[src - 1] = 0;
+        pq.add(new int[]{src - 1, 0});
+        while (pq.size() > 0) {
+            int[] rem = pq.remove();
+            int u = rem[0], wsf = rem[1];
+            if (dis[u] < wsf) continue;
+            for (int[] nbr : graph[u]) {
+                int w = nbr[1], v = nbr[0];
+                if (dis[v] > wsf + w) {
+                    dis[v] = wsf + w;
+                    pq.add(new int[]{v, wsf + w});
+                }
+            }
+        }
+        int maxTime = 0;
+        for (int i = 0; i < n; i++) {
+            if (dis[i] == (int) 1e8) return -1;
+            maxTime = Math.max(maxTime, dis[i]);
+        }
+
+        return maxTime;
+    }
+
+    class MinPair {
+        int fsf;
+        int tsf;
+        int vtx;
+
+        MinPair(int fees, int time, int vtx) {
+            this.tsf = time;
+            this.fsf = fees;
+            this.vtx = vtx;
+        }
+
+        @Override
+        public String toString() {
+            return "MinPair{" + "fsf=" + fsf + ", tsf=" + tsf + ", vtx=" + vtx + '}';
+        }
+    }
+
+    public int minCost(int maxTime, int[][] edges, int[] passingFees) {
+        int n = passingFees.length;
+        List<int[]> graph[] = new ArrayList[n];
+        for (int i = 0; i < n; i++) {
+            graph[i] = new ArrayList<>();
+        }
+        for (int[] time : edges) {
+            int u = time[0], v = time[1], w = time[2];
+            graph[u].add(new int[]{v, w});
+            graph[v].add(new int[]{u, w});
+        }
+        PriorityQueue<MinPair> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a.fsf));
+        int timeCost[] = new int[n];
+        Arrays.fill(timeCost, (int) 1e8);
+        timeCost[0] = 0;
+        pq.add(new MinPair(passingFees[0], 0, 0));
+        while (pq.size() > 0) {
+            MinPair rem = pq.remove();
+
+            int vtx = rem.vtx, tsf = rem.tsf, fsf = rem.fsf;
+            if (vtx == n - 1) return fsf;
+            for (int[] nbr : graph[vtx]) {
+                int w = nbr[1], v = nbr[0];
+                if (timeCost[v] < tsf + w) continue;
+                if (tsf + w <= maxTime) {
+                    if (timeCost[v] > tsf + w) {
+                        timeCost[v] = tsf + w;
+                        pq.add(new MinPair(fsf + passingFees[v], tsf + w, v));
+                    }
+
+                }
+            }
+        }
+        return -1;
+    }
+
+    class MinEffortPair {
+        int idx;
+        int diff;
+
+        MinEffortPair(int idx, int diff) {
+            this.idx = idx;
+            this.diff = diff;
+        }
+    }
+
+    public int minimumEffortPath(int[][] heights) {
+        int n = heights.length, m = heights[0].length;
+        PriorityQueue<MinEffortPair> pq = new PriorityQueue<>((a, b) -> a.diff - b.diff);
+        int dis[][] = new int[n][m];
+        for (int[] d : dis)
+            Arrays.fill(d, (int) 1e8);
+        dis[0][0] = 0;
+        pq.add(new MinEffortPair(0, 0));
+        int maxDistance = 0;
+        int xdir[] = new int[]{0, -1, 0, 1};
+        int ydir[] = new int[]{-1, 0, 1, 0};
+        while (pq.size() > 0) {
+            MinEffortPair rem = pq.remove();
+            int idx = rem.idx, maxDiffSoFar = rem.diff;
+            int r = idx / m, c = idx % m;
+            if (dis[r][c] < maxDiffSoFar) continue;
+            if (r == n - 1 && c == m - 1) return maxDiffSoFar;
+            for (int i = 0; i < xdir.length; i++) {
+                int x = xdir[i] + r;
+                int y = ydir[i] + c;
+                if (x >= 0 && x < n && y >= 0 && y < m) {
+                    int currDiff = Math.abs(heights[x][y] - heights[r][c]);
+                    int max = Math.max(currDiff, maxDiffSoFar);
+                    if (dis[x][y] > max) {
+                        dis[x][y] = max;
+                        pq.add(new MinEffortPair(x * m + y, max));
+                    }
+                }
+            }
+
+        }
+
+        return maxDistance;
+    }
+
+    public int countPaths(int n, int[][] roads) {
+        int mod = (int) (1e9 + 7);
+        List<int[]> graph[] = new ArrayList[n];
+        for (int i = 0; i < n; i++) {
+            graph[i] = new ArrayList<>();
+        }
+        for (int[] road : roads) {
+            int u = road[0], v = road[1], w = road[2];
+            graph[u].add(new int[]{v, w});
+            graph[v].add(new int[]{u, w});
+        }
+        PriorityQueue<long[]> pq = new PriorityQueue<long[]>((long[] a, long[] b) -> {
+            return (int) (a[1] - b[1]);
+        });
+        long dis[] = new long[n];
+        long paths[] = new long[n];
+        Arrays.fill(dis, (long) (1e15) + 1);
+        pq.add(new long[]{0, 0});
+        dis[0] = 0;
+        paths[0] = 1;
+        while (pq.size() > 0) {
+            long rem[] = pq.remove();
+            int u = (int) rem[0];
+            long wsf = rem[1];
+
+            if (dis[u] < wsf) continue;
+
+            for (int[] nbr : graph[u]) {
+                int v = nbr[0], w = nbr[1];
+                long newDis = (dis[u] + w);
+                if (dis[v] > newDis) {
+                    dis[v] = newDis;
+                    paths[v] = paths[u] % mod;
+                    pq.add(new long[]{v, newDis});
+                } else if (dis[v] == newDis) {
+                    paths[v] = (paths[v] + paths[u]) % mod;
+                }
+            }
+
+        }
+        int ans = (int) (paths[n - 1] % mod);
+        return ans;
     }
 }
