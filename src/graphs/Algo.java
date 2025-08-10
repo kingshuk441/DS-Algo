@@ -170,4 +170,21 @@ public class Algo {
 
         return negativeCycle ? null : dis;
     }
+
+    public int findCheapestPrice(int n, int[][] flights, int src, int dst, int k) {
+        int dis[] = new int[n];
+        Arrays.fill(dis, (int) 1e8);
+        dis[src] = 0;
+        for (int i = 1; i <= k + 1; i++) {
+            int nDis[] = Arrays.copyOf(dis, n);
+            for (int edge[] : flights) {
+                int u = edge[0], v = edge[1], w = edge[2];
+                if (dis[u] + w < nDis[v]) {
+                    nDis[v] = dis[u] + w;
+                }
+            }
+            dis = nDis;
+        }
+        return dis[dst] != (int) 1e8 ? dis[dst] : -1;
+    }
 }

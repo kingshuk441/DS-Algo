@@ -805,4 +805,130 @@ public class Questions {
         int ans = (int) (paths[n - 1] % mod);
         return ans;
     }
+
+    public int swimInWater(int[][] grid) {
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] - b[1]);
+        int n = grid.length, m = grid[0].length;
+        pq.add(new int[]{0, grid[0][0]});
+        boolean[][] vis = new boolean[n][m];
+        vis[0][0] = true;
+        int xdir[] = new int[]{0, -1, 0, 1};
+        int ydir[] = new int[]{-1, 0, 1, 0};
+        while (pq.size() > 0) {
+            int[] rem = pq.remove();
+            int idx = rem[0], cost = rem[1];
+            int r = idx / m, c = idx % m;
+            if (r == n - 1 && c == m - 1) return cost;
+            for (int i = 0; i < xdir.length; i++) {
+                int x = xdir[i] + r;
+                int y = ydir[i] + c;
+                if (x >= 0 && y >= 0 && x < n && y < n && !vis[x][y]) {
+                    int newCost = Math.max(cost, grid[x][y]);
+                    vis[x][y] = true;
+                    pq.add(new int[]{x * m + y, newCost});
+                }
+            }
+        }
+        return -1;
+    }
+
+    public int countSubIslands(int[][] grid1, int[][] grid2) {
+        int n = grid1.length, m = grid1[0].length;
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (grid2[i][j] == 1) {
+                    if (isSubIsland(grid1, grid2, i, j)) count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    private boolean isSubIsland(int[][] grid1, int[][] grid2, int r, int c) {
+        int xdir[] = new int[]{0, -1, 0, 1};
+        int ydir[] = new int[]{-1, 0, 1, 0};
+        grid2[r][c] = 0;
+        boolean isSub = grid1[r][c] == 1;
+        for (int i = 0; i < xdir.length; i++) {
+            int x = xdir[i] + r;
+            int y = ydir[i] + c;
+            if (x >= 0 && y >= 0 && x < grid1.length && y < grid1[0].length && grid2[x][y] == 1) {
+                isSub = isSubIsland(grid1, grid2, x, y) && isSub;
+            }
+        }
+        return isSub;
+    }
+
+    int countDistinctIslands(int[][] grid) {
+        int xdir[] = new int[]{0, -1, 0, 1};
+        int ydir[] = new int[]{-1, 0, 1, 0};
+        int n = grid.length, m = grid[0].length;
+        Set<List<String>> islandCountSet = new HashSet<>();
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (grid[i][j] == 1) {
+                    List<String> list = new ArrayList<>();
+                    countDistinctIslands(grid, i, j, i, j, xdir, ydir, list);
+                    islandCountSet.add(list);
+                }
+            }
+        }
+
+        return islandCountSet.size();
+    }
+
+    private void countDistinctIslands(int[][] grid, int sr, int sc, int r, int c, int[] xdir, int[] ydir, List<String> list) {
+        list.add((sr - r) + "," + (sc - c));
+        grid[r][c] = 0;
+
+        for (int i = 0; i < xdir.length; i++) {
+            int x = xdir[i] + r;
+            int y = ydir[i] + c;
+            if (x >= 0 && y >= 0 && x < grid.length && y < grid[0].length && grid[x][y] == 1) {
+                countDistinctIslands(grid, sr, sc, x, y, xdir, ydir, list);
+            }
+        }
+    }
+
+    class Node {
+        public int val;
+        public List<Node> neighbors;
+
+        public Node() {
+            val = 0;
+            neighbors = new ArrayList<Node>();
+        }
+
+        public Node(int _val) {
+            val = _val;
+            neighbors = new ArrayList<Node>();
+        }
+
+        public Node(int _val, ArrayList<Node> _neighbors) {
+            val = _val;
+            neighbors = _neighbors;
+        }
+    }
+
+    public Node cloneGraph(Node node) {
+        Map<Integer, Node> map = new HashMap<>();
+        cloneGraph(node, map);
+        return map.get(1);
+    }
+
+    private void cloneGraph(Node node, Map<Integer, Node> map) {
+        if (node == null)
+            return;
+        if (map.containsKey(node.val)) {
+            return;
+        }
+        Node nn = new Node(node.val);
+        map.put(nn.val, nn);
+
+        for (Node nbr : node.neighbors) {
+            cloneGraph(nbr, map);
+            nn.neighbors.add(map.get(nbr.val));
+        }
+    }
 }

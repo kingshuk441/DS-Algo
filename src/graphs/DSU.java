@@ -1,5 +1,7 @@
 package graphs;
 
+import basics.Str;
+
 import java.nio.channels.Pipe;
 import java.util.*;
 
@@ -545,6 +547,99 @@ public class DSU {
         }
 
         return ans.toString();
+
+    }
+
+    public int largestIsland(int[][] grid) {
+        int n = grid.length, m = grid[0].length;
+        int xdir[] = new int[]{0, -1, 0, 1};
+        int ydir[] = new int[]{-1, 0, 1, 0};
+        init(n * m);
+        int maxArea = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (grid[i][j] == 1) {
+
+                    for (int k = 0; k < xdir.length; k++) {
+                        int r = xdir[k] + i;
+                        int c = ydir[k] + j;
+                        if (r >= 0 && r < n && c >= 0 && c < m && grid[r][c] == 1) {
+                            int p1 = findPar(i * m + j);
+                            int p2 = findPar(r * m + c);
+                            if (p1 != p2)
+                                merge(p1, p2);
+                        }
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (grid[i][j] == 0) {
+                    int area = 1;
+                    Set<Integer> uniquePar = new HashSet<>();
+                    for (int k = 0; k < xdir.length; k++) {
+                        int r = xdir[k] + i;
+                        int c = ydir[k] + j;
+
+                        if (r >= 0 && r < n && c >= 0 && c < m && grid[r][c] == 1) {
+                            int p1 = findPar(r * m + c);
+                            if (!uniquePar.contains(p1)) {
+                                uniquePar.add(p1);
+                                area += size[p1];
+                            }
+                        }
+                    }
+                    maxArea = Math.max(maxArea, area);
+                } else {
+                    maxArea = Math.max(maxArea, size[findPar(i * m + j)]);
+                }
+            }
+        }
+        return maxArea;
+    }
+
+    public List<List<String>> accountsMerge(List<List<String>> accounts) {
+        int n = accounts.size();
+        init(n);
+        Map<String, Integer> emailParMap = new HashMap<>();
+        Map<Integer, List<String>> parEmailsMap = new HashMap<>();
+
+        for (int i = 0; i < n; i++) {
+            List<String> account = accounts.get(i);
+            for (int j = 1; j < account.size(); j++) {
+                String email = account.get(j);
+                if (emailParMap.containsKey(email)) {
+                    int p1 = findPar(emailParMap.get(email));
+                    int p2 = findPar(i);
+                    par[p2] = p1;
+                } else {
+                    emailParMap.put(email, findPar(i));
+                }
+            }
+        }
+
+        for (Map.Entry<String, Integer> entry : emailParMap.entrySet()) {
+            String email = entry.getKey();
+            int par = findPar(entry.getValue());
+            if (!parEmailsMap.containsKey(par)) {
+                parEmailsMap.put(par, new ArrayList<>());
+            }
+            parEmailsMap.get(par).add(email);
+        }
+
+        List<List<String>> ans = new ArrayList<>();
+
+        for (Map.Entry<Integer, List<String>> entry : parEmailsMap.entrySet()) {
+            int par = findPar(entry.getKey());
+            String name = accounts.get(par).get(0);
+            List<String> emails = entry.getValue();
+            Collections.sort(emails);
+            emails.add(0, name);
+            ans.add(emails);
+        }
+        return ans;
+
 
     }
 }
